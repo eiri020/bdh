@@ -1,11 +1,16 @@
 # Behavior Driven Home (BDH)
 
-This script will allow you to define and test your automations using the [Gherkin](https://cucumber.io/docs/gherkin/reference/) language used in [Bahavior Driven Development (BDD)](https://en.wikipedia.org/wiki/Behavior-driven_development).
+This (typescript) script will allow you to define and test your automations using the [Gherkin](https://cucumber.io/docs/gherkin/reference/) language used in [Behavior Driven Development (BDD)](https://en.wikipedia.org/wiki/Behavior-driven_development).
 
-One of the great ascpects of BDD is that you start with a natural language, gherkin, to describe the behavior in scenarios you need support prior to developing code. This allows you to describe your scenerio, without thinking of implementations or technical details. Also it creates boilerplate code to implement (unit) testing the scenerio after implmentation. But for me, in this specific project, my main goal is to document and start automating without code. When it is clear in your mind, and described it in Gherkin, you can fill in the Home Assistant or your installation specific details with sensors, triggers, actions and conditions. 
+You can find the latest code at github:
+https://github.com/eiri020/bdh/tree/main
+
+One of the great aspects of BDD is that you start with a natural language, Gherkin, to describe the behavior in scenarios you need support prior to developing code. This allows you to describe your scenario, without thinking of implementations or technical details. Also it creates boilerplate code to implement (unit) testing the scenario after implementation. 
+In this project I use this same strategy to document behavior and start automating without code. When it is clear in your mind, and described it in Gherkin, you can fill in the Home Assistant or your installation specific details with sensors, triggers, actions and conditions. 
 And this is exactly what this project aims for, start with describing behavior, then continue with coding and testing. 
 
-Within Home Assistant (HA), your automations will grow in time, and automations created in the HA automation editor or manually in YAML will get harder to maintain and troubleshoot. This script tries to solve this a bit, by having all your automations described in a human understandle language and being the source for changes in your automations. Also it can generate some tests scripts, that you need to implement to test your behaviour after you created the automation scenarios.
+Within Home Assistant (HA), your automations will grow in time, and automations created in the HA automation editor or manually in YAML will get harder to maintain and troubleshoot. This script tries to solve this a bit, by having all your automations described in a human language and being the source for changes in your automations. Also it can generate some tests scripts, that you need to implement to test your behavior after you created the automation scenarios.
+
 
 - [Behavior Driven Home (BDH)](#behavior-driven-home-bdh)
 - [Home Assitant automations vs. Gherkin scenarios](#home-assitant-automations-vs-gherkin-scenarios)
