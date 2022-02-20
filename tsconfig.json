@@ -4,6 +4,10 @@
       "module": "commonjs",
       "sourceMap": true,
       "esModuleInterop": true,
-      "outDir": "./out",    
-  }
+      "outDir": "./dist",    
+  },
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+]
 }

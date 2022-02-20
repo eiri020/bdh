@@ -11,21 +11,24 @@ Within Home Assistant (HA), your automations will grow in time, and automations 
 - [Home Assitant automations vs. Gherkin scenarios](#home-assitant-automations-vs-gherkin-scenarios)
 - [Feature files](#feature-files)
 - [Workflow](#workflow)
+- [Installation](#installation)
+  - [Requirements](#requirements)
 - [Generating automations and test scripts](#generating-automations-and-test-scripts)
   - [Creating automations](#creating-automations)
   - [Creating test scripts](#creating-test-scripts)
   - [Output options](#output-options)
-- [Output](#output)
-  - [Automation](#automation)
-    - [Features files to automation files](#features-files-to-automation-files)
-    - [Scenarios to automations](#scenarios-to-automations)
-    - [Given to condition](#given-to-condition)
-    - [When to trigger](#when-to-trigger)
-    - [Then to action](#then-to-action)
-  - [Test scripts](#test-scripts)
-    - [Features files to test scripts](#features-files-to-test-scripts)
+  - [Output](#output)
+    - [Automation](#automation)
+      - [Features files to automation files](#features-files-to-automation-files)
+      - [Scenarios to automations](#scenarios-to-automations)
+      - [Given to condition](#given-to-condition)
+      - [When to trigger](#when-to-trigger)
+      - [Then to action](#then-to-action)
+    - [Test scripts](#test-scripts)
+      - [Features files to test scripts](#features-files-to-test-scripts)
 - [Roadmap](#roadmap)
   - [Refactor code](#refactor-code)
+  - [Mature options](#mature-options)
   - [Scenario Outline](#scenario-outline)
   - [Blueprint editor](#blueprint-editor)
   - [Enhanced test support](#enhanced-test-support)
@@ -77,6 +80,31 @@ This BDH uses the following workflow to create and maintain Home Assistant autom
   3. Implement the automations with your specific sensors and actions to perform 
   4. Compare and create the test scripts from the scenarios in the .feature files
 
+# Installation
+
+## Requirements
+
+* A valid [node.js](https://nodejs.org/en/) and npm installation on your system. There numerous options on internet to do so.
+* Typescript installed globally advised
+* ts-node, globally advised
+
+To install bdh, clone the repository into a directory
+
+```bash
+  git clone git@github.com:eiri020/bdh.git
+```
+
+Change to that directory and initialize the node modules
+
+```bash
+  cd bdh
+  npm install
+```
+Transpile the typescript files to node.js
+
+```bash
+  tsc
+```
 
 # Generating automations and test scripts
 
@@ -100,7 +128,7 @@ This allows to use both the HA builtin automation and script editor and loading 
 ## Creating automations
 
 ```bash
-bdh automation [--generate] [--sample] [--dump] [--verbose] --output=bdh/packages <files...>
+./bdh automation [--generate] [--sample] --output=bdh/packages <files...>
 ```
 
 This will create the automations in folder bdh/package, replacing the .feature extension to .yaml.
@@ -109,7 +137,7 @@ When a file is a directory, it recurse through that directory, looking for all .
 ## Creating test scripts
 
 ```bash
-bdh script [--generate] [--sample] [--dump] [--verbose] --output=bdh/test <files...>
+./bdh script [--generate] [--sample] --output=bdh/test <files...>
 ```
 
 This will create the scripts in folder bdh/test, replacing the .feature extension to .yaml.
@@ -123,11 +151,7 @@ Generate automation file if it does not exists
 **-s, --sample**<br>
 Dump changed automations, when the feature differs from the automation.
 
-**-d, --dump**<br>
-Dump generated automation from features to screen 
-
-# Output
-
+## Output
 As a sample we create the following feature file: bdh/features/arriving.feature
 ```gherkin
 Feature: Arriving and leaving home
@@ -143,14 +167,12 @@ Feature: Arriving and leaving home
     Then turn the lights off in the living room
     And switch off the television
 ```
-
-## Automation
-
-### Features files to automation files
+### Automation
+#### Features files to automation files
 When you run bdh the first time:
 
 ```bash
-bdh automation --verbose --output=bdh/packages bdh/features
+./bdh automation --verbose --output=bdh/packages bdh/features
 ```
 
 It will tell that a destination automation file bdh/packages/arriving.yaml does not exist. Adding the --generate option will create the missing feature implementation file. the file contents looks like:
@@ -231,7 +253,7 @@ It will tell that a destination automation file bdh/packages/arriving.yaml does 
           And: switch off the television
 
 ```
-### Scenarios to automations
+#### Scenarios to automations
 All scenarios in the feature file are converted to automations, starting with the alias having the name 
 of the scenario: 
 
@@ -250,7 +272,7 @@ and to ensure them being unique among different features, the base name of the f
 It is important to keep both alias and id untouched, so consequtive runs, can compare between feature and automation. You
 can however add extra attributes to the automation itself, like [script mode](https://www.home-assistant.io/integrations/script/#script-modes) or any other options
 
-### Given to condition
+#### Given to condition
 
 The given part (initial state) is optional, as with the Scenario "Leaving home", else it will generate the following yaml condition code:
 
@@ -278,7 +300,7 @@ Although it is recommended to change your feature, you may add additional condit
 as long when the alias does not start with a Gherkin keyword.
 
 
-### When to trigger
+#### When to trigger
 
 The triggers in HA do not support aliases, so there is no good way to map triggers in your automation with the 
 when steps in your feature. The compare function, will therefore only notify if the number of triggers dont match 
@@ -418,7 +440,7 @@ Your implementation may look like for both:
 
 ```
 
-### Then to action
+#### Then to action
 The then section in Gherkin will generate the action section in the automation. Above feature file will generate 
 following automation yaml:
 
@@ -463,7 +485,7 @@ And the final implementation may look like:
 Note: it is allowed to add extra actions, for example to add delays, as long as the alias does not start with a 
 Gherking keyword (including '*')
 
-## Test scripts
+### Test scripts
 
 One of the benefits of writing the Gherkin scenarios, is that they can be automatically converted to test scenarios.
 Testing Home Automation is challenging because of its event driven nature and most of the times you can fake the sensors.
@@ -479,7 +501,7 @@ Using trigger variables in your automation code will not work during testing, fo
 A lot of thinking need to be done, to have a good test implementation. For now we concentrate at just validating the
 then section of the scenario.
 
-### Features files to test scripts
+#### Features files to test scripts
 The same gherkin feature file can be used to generate your script
 
 ```bash
@@ -632,6 +654,9 @@ Here are some things I will be working on next, or need more investigation
 ## Refactor code
 This code was written in a few days, from idea to result. Now it needs to convert from a quick and dirty solution 
 to something that is maintainable, including unit tests. 
+
+## Mature options
+Options like supressing the current verbose output and dumping generated code to screen, will be done after the refacturing.
 
 ## Scenario Outline
 The Gherkin Scenario Outline, may be usefull at a lot of places, like one initial (given state) will result in 

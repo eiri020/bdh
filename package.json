@@ -2,7 +2,7 @@
   "name": "bdh",
   "version": "1.0.0",
   "description": "Behaviour Driven Home",
-  "main": "out/bdh.js",
+  "main": "dist/bdh.js",
   "scripts": {
     "compile": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
