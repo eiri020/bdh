@@ -5,7 +5,6 @@ const Diff = require('diff');
 
 import { Command } from 'commander';
 import * as fs from 'fs'
-import { Integer } from 'neo4j-driver';
 import { exit } from 'process';
 import * as YAML from 'yaml';
 
@@ -93,7 +92,7 @@ const mkAutomationWhen = (feature: string, scenario: any, keyword: string, text:
 
       example.tableBody.forEach(row => {
         lines.push(`    # ${row.cells[cellIdx].value}`);
-        lines.push('      # ADD HERE YOUR TRIGGER');
+        lines.push('    # ADD HERE YOUR TRIGGER');
         lines.push(`    - platform: template`);
         lines.push('      value_template: "{{ true == false }}"');
       })
@@ -102,7 +101,7 @@ const mkAutomationWhen = (feature: string, scenario: any, keyword: string, text:
   }
   else {  
     lines.push(`    # ${keyword.trim()} ${text.trim()}`);
-    lines.push('      # ADD HERE YOUR TRIGGER');
+    lines.push('    # ADD HERE YOUR TRIGGER');
     lines.push(`    - platform: template`);
     lines.push('      value_template: "{{ true == false }}"');
   }
@@ -913,7 +912,7 @@ const gherkinConverter = (files: string[], options: any, featureConverter: (feat
 
 
 program
-  .command('automation')
+  .command('automation-dump')
   .argument('<files...>')
   .action((files: string[], options: any, command: any) => {
     files.forEach(file => {
@@ -921,7 +920,7 @@ program
     });
   });
 
-  program
+program
   .command('gherkin')
   .argument('<files...>')
   .action((files: string[], options: any, command: any) => {
@@ -944,7 +943,7 @@ program
 
 
 program
-  .command('feature')
+  .command('automation')
   .argument('<files...>')
   .option('-o, --output <output>', 'output folder', 'packages')
   .option('-g, --generate', 'generate automation yaml if not exists', false)
