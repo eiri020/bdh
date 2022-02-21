@@ -283,31 +283,7 @@ can however add extra attributes to the automation itself, like [script mode](ht
 
 #### Given to condition
 
-The given part (initial state) is optional, as with the Scenario "Leaving home", else it will generate the following yaml condition code:
-
-```yaml
-  # GIVEN
-  condition:
-    - alias: |-
-        Given it is after sunset
-      # ADD HERE YOUR INITIAL STATE
-      condition: template
-      value_template: "{{ true == false }}"
-```
-
-After you have create your implementation, you code might look like:
-
-```yaml
-  # GIVEN
-  condition:
-    - alias: |-
-        Given it is after sunset
-      condition: "{{ is_state('sun.sun','below_horizon') }}"
-```
-
-Although it is recommended to change your feature, you may add additional conditions in your automation, 
-as long when the alias does not start with a Gherkin keyword.
-
+[Given to dondition](doc/given-condition.md)
 
 #### When to trigger
 
