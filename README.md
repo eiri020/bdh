@@ -5,6 +5,9 @@ This (typescript) script will allow you to define and test your automations usin
 You can find the latest code at github:
 https://github.com/eiri020/bdh/tree/main
 
+Discussions you may find here:
+https://community.home-assistant.io/t/behavior-driven-home/394946
+
 One of the great aspects of BDD is that you start with a natural language, Gherkin, to describe the behavior in scenarios you need support prior to developing code. This allows you to describe your scenario, without thinking of implementations or technical details. Also it creates boilerplate code to implement (unit) testing the scenario after implementation. 
 In this project I use this same strategy to document behavior and start automating without code. When it is clear in your mind, and described it in Gherkin, you can fill in the Home Assistant or your installation specific details with sensors, triggers, actions and conditions. 
 And this is exactly what this project aims for, start with describing behavior, then continue with coding and testing. 
@@ -35,6 +38,7 @@ Within Home Assistant (HA), your automations will grow in time, and automations 
   - [Refactor code](#refactor-code)
   - [Mature options](#mature-options)
   - [Scenario Outline](#scenario-outline)
+  - [Tagging](#tagging)
   - [Blueprint editor](#blueprint-editor)
   - [Enhanced test support](#enhanced-test-support)
 
@@ -328,7 +332,7 @@ Your automation implementation might look like:
   trigger:
     # When Paulus arrives home
     - platform: state
-      entity_id: person.mad_max
+      entity_id: person.paulus
       from: not_home
       to: home
 ```
@@ -667,6 +671,9 @@ Options like supressing the current verbose output and dumping generated code to
 The Gherkin Scenario Outline, may be usefull at a lot of places, like one initial (given state) will result in 
 another end state (then). Supporting the multiple columns in Example tables will make this possible, but it might 
 also result in having multiple automations for one scenario. Or maybe using blueprints for this purpose.
+
+## Tagging
+Support for tagging in gherkin to affect output  
 
 ## Blueprint editor
 When we would create automation blueprints, in stead of automations itself, you could use the blueprint automation
