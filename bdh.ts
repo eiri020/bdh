@@ -25,11 +25,11 @@ const isScenarioAutomation = (str: string): boolean => {
 } 
 
 const getGherkingAliases = (container: any[]) => {
-  return container.filter(step => step.alias && startsWithGherkin(step.alias)).map(obj => obj.alias);
+  return container.filter(step => step.alias && startsWithGherkin(step.alias)).map(obj => obj.alias.trim());
 }
 
 const getGherkingAutomationIds = (container: any[]) => {
-  return container.filter(obj => obj.id && isScenarioAutomation(obj.id)).map(obj => obj.id);
+  return container.filter(obj => obj.id && isScenarioAutomation(obj.id)).map(obj => obj.id.trim());
 }
 
 const getAutomationScenarios = (feature: any) => {
