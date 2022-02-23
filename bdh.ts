@@ -191,7 +191,7 @@ const mkAutomation = (input: string, scenario?: any) => {
         lines.push('########################################');
         lines.push(`- alias: |-`);
         lines.push(`    Scenario ${parsed.name}: ${element.scenario.name}`);
-        lines.push(`  id: scenario_${parsed.name}_${element.scenario.name.toLowerCase().replace(/[^\w]/g,'_')}`)
+        lines.push(`  id: scenario_${parsed.name.replace(/[^\w]/g,'_')}_${element.scenario.name.toLowerCase().replace(/[^\w]/g,'_')}`)
 
         let major;
         let foundWhen = false;
@@ -295,7 +295,7 @@ const mkScript = (input: string, scenarioName?: string) => {
         lines.push('########################################');
         lines.push(`# SCENARIO ${element.scenario.name}`);
         lines.push('########################################');
-        lines.push(`scenario_${parsed.name}_${element.scenario.name.toLowerCase().replace(/[^\w]/g,'_')}:`)
+        lines.push(`scenario_${parsed.name.replace(/[^\w]/g,'_')}_${element.scenario.name.toLowerCase().replace(/[^\w]/g,'_')}:`)
         lines.push(`  alias: |-`);
         lines.push(`    Scenario ${parsed.name}: ${element.scenario.name}`);
         lines.push(`  sequence:`);
