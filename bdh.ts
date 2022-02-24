@@ -4,13 +4,12 @@ import Messages = require('@cucumber/messages');
 import path = require('path');
 import Diff = require('diff');
 
-import { Command } from 'commander';
 import * as fs from 'fs'
-// import { exit } from 'process';
+import log = require('npmlog');
 import * as YAML from 'yaml';
+import { program } from './src/cmds';
 
 const gherkin_keywords =  ['given','when','then','and','but','*', 'scenario'];
-const program = new Command();
 
 interface FeatureStatus {
     numChangedFeatures: number;
@@ -746,13 +745,18 @@ const feature2yaml = (featureFile: string, baseYamlPath: string, options: any): 
 
     }).forEach(file => {
 
-      let result;
+      let result = {
+        numChangedFeatures: 0,
+        numErrors: 0
+      }
 
       const subFeatureFile = `${featureFile}/${file}`; 
 
 
       if(fs.lstatSync(subFeatureFile).isDirectory()) {
-        result = feature2yaml(subFeatureFile, `${baseYamlPath}/${path.parse(path.resolve(file)).base}`, options);
+        if(subFeatureFile != baseYamlPath) {
+          result = feature2yaml(subFeatureFile, `${baseYamlPath}/${path.parse(path.resolve(file)).base}`, options);
+        }
       } else { 
         result = feature2yaml(subFeatureFile, `${baseYamlPath}`, options);
       }
@@ -864,7 +868,7 @@ const feature2script = (featureFile: string, baseYamlPath: string, options: any)
 const gherkinConverter = (files: string[], options: any, featureConverter: (featureFile: string, baseYamlPath: string, options: any) => FeatureStatus): FeatureStatus => {
 
   const output  = options.output.trim();
-  const baseOutputPath = `${output.startsWith('/') ? '' : process.cwd()}/${output}`;
+  const baseOutputPath = path.resolve(output);
   let baseGherkinPath = '.';
 
   if (options.generate && !fs.existsSync(baseOutputPath)){
@@ -888,7 +892,9 @@ const gherkinConverter = (files: string[], options: any, featureConverter: (feat
       let result;
 
       if(fs.lstatSync(fullPath).isDirectory()) {
-        result = featureConverter(fullPath, `${baseOutputPath}/${path.parse(path.resolve(fullPath)).base}`, options);
+        if(baseOutputPath != fullPath) {
+          result = featureConverter(fullPath, `${baseOutputPath}/${path.parse(path.resolve(fullPath)).base}`, options);
+        }
       } else { 
         result = featureConverter(fullPath, `${baseOutputPath}`, options);
       }
@@ -921,25 +927,7 @@ program
     });
   });
 
-program
-  .command('gherkin')
-  .argument('<files...>')
-  .action((files: string[]) => {
-    files.forEach(file => {
-      const uuidFn = Messages.IdGenerator.uuid()
-      const builder = new Gherkin.AstBuilder(uuidFn)
-      const matcher = new Gherkin.GherkinClassicTokenMatcher() // or Gherkin.GherkinInMarkdownTokenMatcher()
-      const parser = new Gherkin.Parser(builder, matcher);
-      
-      // const parsed = path.parse(path.resolve(file));
-    
-      const ins: string = fs.readFileSync(file,'utf8');
-      const gherkinDocument = parser.parse(ins);
 
-      console.log(JSON.stringify(gherkinDocument,null,' '));
-
-    });
-  });
 
 
 program
@@ -1031,11 +1019,9 @@ program
     }
   });
 
-
-
   try {
     program.parse(process.argv);
   } catch(err) {
-    verbose(`ERROR: Error executing command: ${err.message}`);
+    log.error(path.resolve(process.argv[0]),`Error executing command: ${err.message}`);
     process.exit(-1);
   }

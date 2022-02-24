@@ -8,7 +8,7 @@ export class Feature {
 
   private _featureFile: string;
   private _logPrefix: string;
-  private _gherkin: string;
+  private _gherkin: any;
 
   public get featureFile() {
     return this._featureFile;
@@ -29,7 +29,6 @@ export class Feature {
     const builder = new Gherkin.AstBuilder(uuidFn)
     const matcher = parsed.ext.toLowerCase() === '.md' ? new Gherkin.GherkinInMarkdownTokenMatcher() : new Gherkin.GherkinClassicTokenMatcher();
     const parser = new Gherkin.Parser(builder, matcher);
-    
     log.info(this._logPrefix,`reading feature file ${this._featureFile}`);
     
     let featureText: string;
@@ -39,12 +38,16 @@ export class Feature {
       throw new Error(`Cannot read feature file ${this._featureFile}: ${err.message}`)
     }
 
-    try{
+    try {
       this._gherkin = parser.parse(featureText);
     
     } catch(err) {
       // TODO add line info if possible
       throw new Error(`Cannot parse feature file ${this._featureFile}: ${err.message}`)
+    }
+
+    if(!Array.isArray(this._gherkin?.feature?.children) || this._gherkin?.feature?.children.find(element => element.scenario != null) == null) {
+      throw new Error(`Cannot find feature or scenarios in file ${this._featureFile}`)
     }
   }
 }
