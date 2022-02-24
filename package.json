@@ -4,11 +4,12 @@
   "description": "Behaviour Driven Home",
   "main": "dist/bdh.js",
   "scripts": {
-    "compile": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "test": "jest --verbose false --silent false",
     "automation": "ts-node bdh.ts automation --output=examples/packages --generate examples/features",
     "script": "ts-node bdh.ts script --output=examples/script --generate examples/features",
-    "clean": "rm -Rf examples/packages examples/script"
+    "clean": "rm -Rf examples/packages examples/script",
+    "lint": "eslint . --ext .ts"
   },
   "author": "Erwin van der Horst",
   "license": "ISC",
@@ -16,11 +17,19 @@
     "@cucumber/cucumber": "^8.0.0-rc.1",
     "commander": "^8.3.0",
     "diff": "^4.0.2",
+    "npmlog": "^6.0.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.2",
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "@types/node": "^16.11.12"
+    "@types/node": "^16.11.12",
+    "@types/npmlog": "^4.1.4",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.9.0",
+    "jest-cucumber": "^3.0.1",
+    "mock-fs": "^5.1.2",
+    "ts-jest": "^27.1.3"
   }
 }

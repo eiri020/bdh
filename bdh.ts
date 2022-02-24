@@ -1,15 +1,15 @@
-var Gherkin = require('@cucumber/gherkin');
-var Messages = require('@cucumber/messages');
-const path = require('path');
-const Diff = require('diff');
 
-import { Command } from 'commander';
+import Gherkin = require('@cucumber/gherkin');
+import Messages = require('@cucumber/messages');
+import path = require('path');
+import Diff = require('diff');
+
 import * as fs from 'fs'
-import { exit } from 'process';
+import log = require('npmlog');
 import * as YAML from 'yaml';
+import { program } from './src/cmds';
 
 const gherkin_keywords =  ['given','when','then','and','but','*', 'scenario'];
-const program = new Command();
 
 interface FeatureStatus {
     numChangedFeatures: number;
@@ -17,7 +17,7 @@ interface FeatureStatus {
 }
 
 const startsWithGherkin = (str: string): boolean => {
-  return gherkin_keywords.indexOf(str.trim().split(/[^a-zA-Z\*]/)[0].toLowerCase()) >= 0;
+  return gherkin_keywords.indexOf(str.trim().split(/[^a-zA-Z*]/)[0].toLowerCase()) >= 0;
 } 
 
 const isScenarioAutomation = (str: string): boolean => {
@@ -70,7 +70,7 @@ const mkScriptGiven = (feature: string, scenario: any, keyword: string, text: st
 
 
 const mkAutomationWhen = (feature: string, scenario: any, keyword: string, text: string, lines: string[]) => {
-  const outline = text.match(/\<([^\>]+)\>/);
+  const outline = text.match(/<([^>]+)>/);
   
   if(outline) {
     if(!scenario.examples || !Array.isArray(scenario.examples)) {
@@ -490,7 +490,7 @@ const compareFeatureWithScript = (featureFile: string, yamlFile: string, options
   return compareFeatureScript(parsed.base, newFeature, orgFeature, featureFile, options.sample) > 0;
 }
 
-const compareFeatureAutomation = (feature: string, newFeature: any, orgFeature: any, gherkinFile: string, sample: boolean = false) => {
+const compareFeatureAutomation = (feature: string, newFeature: any, orgFeature: any, gherkinFile: string, sample = false) => {
 
   const newScenarios = getAutomationScenarios(newFeature);
   const orgScenarios = getAutomationScenarios(orgFeature);
@@ -553,7 +553,7 @@ const compareFeatureAutomation = (feature: string, newFeature: any, orgFeature: 
   return numChangedScenarios;
 }
 
-const compareFeatureScript = (feature: string, newFeature: any, orgFeature: any, gherkinFile: string, sample: boolean = false) => {
+const compareFeatureScript = (feature: string, newFeature: any, orgFeature: any, gherkinFile: string, sample = false) => {
 
   const newScenarios = getScriptScenarios(newFeature);
   const orgScenarios = getScriptScenarios(orgFeature);
@@ -562,7 +562,7 @@ const compareFeatureScript = (feature: string, newFeature: any, orgFeature: any,
 
   let numChangedScenarios = 0;
   
-  for(let newScenarioName of newScenarios) {
+  for(const newScenarioName of newScenarios) {
 
     let createYaml = false
 
@@ -722,7 +722,7 @@ const generateScript = (featureFile: string, yamlFile: string, options: any) => 
 
 const feature2yaml = (featureFile: string, baseYamlPath: string, options: any): FeatureStatus => {
 
-  let status: FeatureStatus = {
+  const status: FeatureStatus = {
     numChangedFeatures: 0,
     numErrors: 0
   };
@@ -745,13 +745,18 @@ const feature2yaml = (featureFile: string, baseYamlPath: string, options: any): 
 
     }).forEach(file => {
 
-      let result;
+      let result = {
+        numChangedFeatures: 0,
+        numErrors: 0
+      }
 
       const subFeatureFile = `${featureFile}/${file}`; 
 
 
       if(fs.lstatSync(subFeatureFile).isDirectory()) {
-        result = feature2yaml(subFeatureFile, `${baseYamlPath}/${path.parse(path.resolve(file)).base}`, options);
+        if(subFeatureFile != baseYamlPath) {
+          result = feature2yaml(subFeatureFile, `${baseYamlPath}/${path.parse(path.resolve(file)).base}`, options);
+        }
       } else { 
         result = feature2yaml(subFeatureFile, `${baseYamlPath}`, options);
       }
@@ -761,7 +766,7 @@ const feature2yaml = (featureFile: string, baseYamlPath: string, options: any): 
     });
   } else {
     const parsed = path.parse(path.resolve(featureFile));
-    let yamlFile = `${baseYamlPath}/${parsed.name}.yaml`;
+    const yamlFile = `${baseYamlPath}/${parsed.name}.yaml`;
 
     verbose(`INFO: ${parsed.base}: Loading feature file`);
 
@@ -792,7 +797,7 @@ const feature2yaml = (featureFile: string, baseYamlPath: string, options: any): 
 
 const feature2script = (featureFile: string, baseYamlPath: string, options: any): FeatureStatus => {
 
-  let status: FeatureStatus = {
+  const status: FeatureStatus = {
     numChangedFeatures: 0,
     numErrors: 0
   };
@@ -831,7 +836,7 @@ const feature2script = (featureFile: string, baseYamlPath: string, options: any)
     });
   } else {
     const parsed = path.parse(path.resolve(featureFile));
-    let yamlFile = `${baseYamlPath}/${parsed.name}.yaml`;
+    const yamlFile = `${baseYamlPath}/${parsed.name}.yaml`;
 
     verbose(`INFO: ${parsed.base}: Loading feature file`);
 
@@ -862,8 +867,8 @@ const feature2script = (featureFile: string, baseYamlPath: string, options: any)
 
 const gherkinConverter = (files: string[], options: any, featureConverter: (featureFile: string, baseYamlPath: string, options: any) => FeatureStatus): FeatureStatus => {
 
-  let output  = options.output.trim();
-  let baseOutputPath = `${output.startsWith('/') ? '' : process.cwd()}/${output}`;
+  const output  = options.output.trim();
+  const baseOutputPath = path.resolve(output);
   let baseGherkinPath = '.';
 
   if (options.generate && !fs.existsSync(baseOutputPath)){
@@ -887,7 +892,9 @@ const gherkinConverter = (files: string[], options: any, featureConverter: (feat
       let result;
 
       if(fs.lstatSync(fullPath).isDirectory()) {
-        result = featureConverter(fullPath, `${baseOutputPath}/${path.parse(path.resolve(fullPath)).base}`, options);
+        if(baseOutputPath != fullPath) {
+          result = featureConverter(fullPath, `${baseOutputPath}/${path.parse(path.resolve(fullPath)).base}`, options);
+        }
       } else { 
         result = featureConverter(fullPath, `${baseOutputPath}`, options);
       }
@@ -914,32 +921,13 @@ const gherkinConverter = (files: string[], options: any, featureConverter: (feat
 program
   .command('automation-dump')
   .argument('<files...>')
-  .action((files: string[], options: any, command: any) => {
+  .action((files: string[]) => {
     files.forEach(file => {
       console.log(mkAutomation(file));
     });
   });
 
-program
-  .command('gherkin')
-  .argument('<files...>')
-  .action((files: string[], options: any, command: any) => {
-    files.forEach(file => {
-      const uuidFn = Messages.IdGenerator.uuid()
-      const builder = new Gherkin.AstBuilder(uuidFn)
-      const matcher = new Gherkin.GherkinClassicTokenMatcher() // or Gherkin.GherkinInMarkdownTokenMatcher()
-      const parser = new Gherkin.Parser(builder, matcher);
-      
-      const parsed = path.parse(path.resolve(file));
-    
-      let gherkinDocument;
-      const ins: string = fs.readFileSync(file,'utf8');
-      gherkinDocument = parser.parse(ins);
 
-      console.log(JSON.stringify(gherkinDocument,null,' '));
-
-    });
-  });
 
 
 program
@@ -950,7 +938,7 @@ program
   .option('-t, --testscript <script>', 'generate test script yaml ')
   .option('-s, --sample', 'print changed automation template', false)
   // .option('-v, --verbose', 'verbose output')
-  .action((files: string[], options: any, command: any) => {
+  .action((files: string[], options: any) => {
 
     const status =  gherkinConverter(files, options, feature2yaml);
 
@@ -1018,7 +1006,7 @@ program
   .option('-g, --generate', 'generate automation yaml if not exists', false)
   .option('-s, --sample', 'print changed automation template', false)
   // .option('-v, --verbose', 'verbose output')
-  .action((files: string[], options: any, command: any) => {
+  .action((files: string[], options: any) => {
 
     const status =  gherkinConverter(files, options, feature2script);
 
@@ -1031,11 +1019,9 @@ program
     }
   });
 
-
-
   try {
     program.parse(process.argv);
   } catch(err) {
-    verbose(`ERROR: Error executing command: ${err.message}`);
+    log.error(path.resolve(process.argv[0]),`Error executing command: ${err.message}`);
     process.exit(-1);
   }

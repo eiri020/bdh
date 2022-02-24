@@ -5,9 +5,11 @@
       "sourceMap": true,
       "esModuleInterop": true,
       "outDir": "./dist",    
+      "resolveJsonModule": true
   },
   "exclude": [
     "node_modules",
+    "dist",
     "**/*.spec.ts"
 ]
 }
