@@ -1019,9 +1019,3 @@ program
     }
   });
 
-  try {
-    program.parse(process.argv);
-  } catch(err) {
-    log.error(path.resolve(process.argv[0]),`Error executing command: ${err.message}`);
-    process.exit(-1);
-  }
