@@ -1,0 +1,135 @@
+import fs from 'fs';
+import log = require('npmlog');
+
+import * as Cmds from "../cmds/cmds";
+import * as data from './samples';
+
+function fail(reason = "fail was called in a test.") {
+  throw new Error(reason);
+}
+
+describe.skip('Command Tests', () => {
+
+  describe.skip('Gherkin Command tests', () => {
+    
+    let mockRead;
+
+    let logErrors = [];
+    let logInfos = [];
+
+
+    afterEach(() => {
+      // mockRead.mockRestoreAll();
+      jest.restoreAllMocks();
+      logErrors = [];
+      logInfos = [];
+    })
+
+    log.on('log.error', logErrors.push.bind(logErrors))
+    log.on('log.info', logInfos.push.bind(logInfos))
+    
+    it('should have errors if a file fails', async () => {
+      mockRead = jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        return data.invalidFeature;
+      });
+
+      try {
+        Cmds.program.parse(['/a/executable/path', 'bdh.ts', 'gherkin', 'invalid.feature']);
+      } catch(err) {
+        fail(`Should not reach here: ${err.message}`);
+      }
+      expect(logErrors.length).toBeGreaterThan(0);
+      expect(logInfos.length).toBeGreaterThan(0);
+      expect(mockRead).toBeCalled();
+      expect(logErrors.find(err => err.message.match(/^\d+ errors$/))).toBeTruthy();
+    });
+
+    it('should not have errors if none file fails', async () => {
+      mockRead = jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        return data.validFeature;
+      });
+
+      try {
+        Cmds.program.parse(['/a/executable/path', 'bdh.ts', 'gherkin', 'valid.feature']);
+      } catch(err) {
+        fail(`Should not reach here: ${err.message}`);
+      }
+      expect(logErrors.length).toBe(0);
+      expect(mockRead).toBeCalled();
+      expect(logErrors.find(err => err.match(/^\d+ errors$/))).toBeFalsy();
+    });
+  });
+
+  describe('Yaml Command tests', () => {
+    
+    let mockRead;
+
+    let logErrors = [];
+    let logInfos = [];
+
+
+    afterEach(() => {
+      // mockRead.mockRestoreAll();
+      jest.restoreAllMocks();
+      logErrors = [];
+      logInfos = [];
+    })
+
+    log.on('log.error', logErrors.push.bind(logErrors))
+    log.on('log.info', logInfos.push.bind(logInfos))
+    
+    it('should have errors if a file fails', async () => {
+      mockRead = jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        return data.invalidFeature;
+      });
+
+      try {
+        Cmds.program.parse(['/a/executable/path', 'bdh.ts', 'yaml', 'invalid.yaml']);
+      } catch(err) {
+        fail(`Should not reach here: ${err.message}`);
+      }
+      expect(logErrors.length).toBeGreaterThan(0);
+      expect(logInfos.length).toBeGreaterThan(0);
+      expect(mockRead).toBeCalled();
+      expect(logErrors.find(err => err.message.match(/^\d+ errors$/))).toBeTruthy();
+    });
+
+    it('should have errors if a file cannot load', async () => {
+      mockRead = jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        throw new Error('error');
+      });
+
+      try {
+        Cmds.program.parse(['/a/executable/path', 'bdh.ts', 'yaml', 'invalid.yaml']);
+      } catch(err) {
+        fail(`Should not reach here: ${err.message}`);
+      }
+      
+      expect(logErrors.length).toBeGreaterThan(0);
+      expect(logInfos.length).toBeGreaterThan(0);
+      expect(mockRead).toBeCalled();
+      expect(logErrors.find(err => err.message.match(/^\d+ errors$/))).toBeTruthy();
+    });
+
+    
+    it('should not have errors if none file fails', async () => {
+      mockRead = jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        return data.validYaml;
+      });
+
+      try {
+        Cmds.program.parse(['/a/executable/path', 'bdh.ts', 'yaml', 'valid.yaml']);
+      } catch(err) {
+        fail(`Should not reach here: ${err.message}`);
+      }
+      expect(logErrors.length).toBe(0);
+      expect(mockRead).toBeCalled();
+      expect(logErrors.find(err => err.match(/^\d+ errors$/))).toBeFalsy();
+    });
+
+
+  });
+
+
+});
+

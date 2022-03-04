@@ -21,3 +21,4 @@ export const loadYaml = (yamlFile: string) => {
 
   return yaml;
 }
+

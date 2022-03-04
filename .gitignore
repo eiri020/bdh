@@ -5,3 +5,4 @@ features
 examples.packages
 examples/script
 dist
+coverage
